@@ -1,0 +1,13 @@
+{
+  "name": "WhereAmI",
+  "version": "0.0.1",
+  "main": "server.coffee",
+  "dependencies": {
+    "express": "3.0.0rc2",
+    "coffee-script": "1.3.3",
+    "stylus": "0.29.0",
+    "jade": "0.27.2",
+    "node-foursquare-2": ">=0.0.1",
+    "pg": ">=0.8.3"
+  }
+}   
