@@ -1,0 +1,9 @@
+.recent_checkin
+	p 
+		| I am at #{res.category} 
+		if res.neigborhood
+			| in #{res.neighborhood}.
+		else if res.locality
+			| in #{res.locality}.
+.timeframe
+	p I've been here for like, #{res.time} hours.

@@ -1,0 +1,9 @@
+.checkin
+	if recentCheckin
+		#checkin
+		if res.public
+			include public_checkin
+		else
+			include private_checkin
+	else
+		include history

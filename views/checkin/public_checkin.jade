@@ -1,0 +1,8 @@
+.recent_checkin
+	p
+		| I am
+		if res.extra
+			| res.extra
+		| at #{res.name}.
+.timeframe
+	p I've been here for like, #{res.time} hours.

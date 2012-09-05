@@ -9,18 +9,35 @@ app.use express.static(pub)
 app.use express.errorHandler()
 
 app.set "view engine", "jade"
-app.use(stylus.middleware debug: true, src: __dirname+"/public/stylesheets", compile: compileMethod)
 
-compileMethod = (str, path) ->
-  stylus(str)
-    .set('filename', path)
-    .set('compress', true)
+compile = (str, path) ->
+  return stylus(str)
+    .set('filename', path)
+    .set('warn', true)
+    .set('compress', true)
+
+app.use stylus.middleware
+  src: '#{__dirname}/public/stylesheets'
+  compile: compile
 
 
 app.get '/', (request, response) -> 
   Foursquare = require './models/foursquare.coffee'
   fs = new Foursquare
-  response.send(fs.getUser())
+  res = fs.getRecentCheckin()
+  console.log res
+  if res
+    checkin = true
+    response.render 'checkin', {res: res, recentCheckin: checkin}
+  else
+  	checkin = false
+  	#res = fs.getHistory()
+    #response.render
+    
+app.get '/test', (request, response) ->
+  Foursquare = require './models/foursquare.coffee'
+  fs = new Foursquare
+  response.send(fs.testFunc())
 
 port = process.env.PORT || 5000
 app.listen port, () ->
