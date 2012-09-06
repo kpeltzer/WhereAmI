@@ -5,9 +5,9 @@ app = express()
 pub = __dirname + '/public'
 
 app.use app.router
-app.use express.static(pub)
 app.use express.errorHandler()
 
+app.set 'views', __dirname + '/views'
 app.set "view engine", "jade"
 
 compile = (str, path) ->
@@ -17,9 +17,10 @@ compile = (str, path) ->
     .set('compress', true)
 
 app.use stylus.middleware
-  src: '#{__dirname}/public/stylesheets'
+  src: pub + '/stylesheets'
   compile: compile
 
+app.use express.static(pub)
 
 app.get '/', (request, response) -> 
   Foursquare = require './models/foursquare.coffee'

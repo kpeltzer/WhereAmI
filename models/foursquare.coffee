@@ -44,7 +44,7 @@ class Foursquare
                     res.locality = a.long_name
                   else if "sublocality" in a.types
                     res.locality = a.long_name
-                return res
+    return res
 
   getHistory: () ->
     res = {}
