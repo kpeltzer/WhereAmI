@@ -1,11 +1,11 @@
 extends ../layout
 
-.checkin
-	if recentCheckin
-		#checkin
-		if res.public
-			include public_checkin
-		else
-			include private_checkin
-	else
-		include history
+block content
+  .checkin.grid_6.prefix_3.suffix_3
+    if res.checkin
+      if res.public
+        include public_checkin
+      else
+        include private_checkin
+    else
+      include history

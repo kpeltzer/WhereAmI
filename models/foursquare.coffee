@@ -12,14 +12,14 @@ class Foursquare
     "Lower", "Upper", "East", "West"
   ]
 
-  getRecentCheckin: () ->
+  getRecentCheckin: (view) ->
     res = {}
     Node_Foursquare.Users.getCheckins null, null, access, (error,data) -> 
       ci = data.checkins.items[1]
-      console.log ci
       d = new Date
       #if parseFloat(d.getTime()/100) <= (parseInt(ci.createdAt) + 3600)
       if true
+        res.checkin = true
         res.time = parseInt((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/60)
         if public_venues[ci.venue.id] #public checkin
           res.public = true
@@ -27,6 +27,7 @@ class Foursquare
           switch public_venues[ci.venue.id]
             when "work"
               res.extra = "at work"
+          view res
         else
           res.public = false
           res.category = getCategoryString ci.venue.categories[0].name
@@ -35,7 +36,7 @@ class Foursquare
             api_request=
               url: "http://maps.googleapis.com/maps/api/geocode/json?latlng=#{ci.venue.location.lat},#{ci.venue.location.lng}&sensor=false"
               json: true
-            request api_request, (error, response, body) ->
+            value = request api_request, (error, response, body) ->
               if !error && body.status =="OK"
                 for a in body.results[0].address_components
                   if "neighborhood" in a.types
@@ -44,7 +45,8 @@ class Foursquare
                     res.locality = a.long_name
                   else if "sublocality" in a.types
                     res.locality = a.long_name
-    return res
+                view res
+
 
   getHistory: () ->
     res = {}
