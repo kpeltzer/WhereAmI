@@ -1,4 +1,6 @@
-body{font-family:'Open Sans',sans-serif;font-size:16px}
-#masthead{font-size:50px;text-align:center;font-family:'Lobster',sans-serif;text-decoration:underline}
+body{font-family:'Open Sans',sans-serif;font-size:16px;background-color:#f0fff0;color:#222}
+#masthead{font-size:55px;text-align:center;font-family:'Josefin Slab',sans-serif;text-decoration:underline}
+#masthead > h1{margin-bottom:20px}
 .info_txt{text-align:center}
-.recent_checkin{font-size:30px}
+.recent_checkin{font-size:40px}
+.timeframe{font-size:25px}

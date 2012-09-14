@@ -15,12 +15,17 @@ class Foursquare
   getRecentCheckin: (view) ->
     res = {}
     Node_Foursquare.Users.getCheckins null, null, access, (error,data) -> 
-      ci = data.checkins.items[1]
+      ci = data.checkins.items[0]
+      console.log ci
       d = new Date
       #if parseFloat(d.getTime()/100) <= (parseInt(ci.createdAt) + 3600)
       if true
         res.checkin = true
-        res.time = parseInt((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/60)
+        time = ((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/3600)
+        switch true
+          when (time >= 1 and time < 1.5) then res.time = "1 hour"
+          when time > 1.5 then res.time = "#{parseInt(time)} hours"
+          when time < 1 then res.time = "#{parseInt(time*60)} minutes"
         if public_venues[ci.venue.id] #public checkin
           res.public = true
           res.name = ci.venue.name

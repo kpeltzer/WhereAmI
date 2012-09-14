@@ -1,9 +1,9 @@
-.recent_checkin
+.recent_checkin.info_txt
 	p 
 		| I am at #{res.category} 
-		if res.neigborhood
+		if res.neighborhood
 			| in #{res.neighborhood}.
 		else if res.locality
 			| in #{res.locality}.
-.timeframe
-	p I've been here for like, #{res.time} hours.
+.timeframe.info_txt
+	p I've been here for like, #{res.time}.
