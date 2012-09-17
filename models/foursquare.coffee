@@ -16,7 +16,7 @@ class Foursquare
   getRecentCheckin: (view) ->
     res = {}
     params=
-      afterTimestamp: parseFloat((new Date).getTime/1000) - 7776000
+      afterTimestamp: parseInt((new Date).getTime()/1000) - 7776000
       limit: 250
     Node_Foursquare.Users.getCheckins null, params, access, (error,data) -> 
       ci = data.checkins.items[0]
