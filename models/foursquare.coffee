@@ -12,9 +12,13 @@ class Foursquare
     "Lower", "Upper", "East", "West"
   ]
 
+
   getRecentCheckin: (view) ->
     res = {}
-    Node_Foursquare.Users.getCheckins null, null, access, (error,data) -> 
+    params=
+      afterTimestamp: parseFloat((new Date).getTime/1000) - 7776000
+      limit: 250
+    Node_Foursquare.Users.getCheckins null, params, access, (error,data) -> 
       ci = data.checkins.items[0]
       console.log ci
       d = new Date
@@ -51,18 +55,44 @@ class Foursquare
                   else if "sublocality" in a.types
                     res.locality = a.long_name
                 view res
+      else 
+        getHistory(view, data.checkins.items)
 
 
-  getHistory: () ->
+  getHistory = (view, cis) ->
     res = {}
+    res.checkin = false
     d = Date.today()
     res.day = d.toFormat "DDDD"
+    currentDay = d.getDay()
+    currentHour = d.getHour()
+    currentTimeCategory = getTimeCategory(currentHour)
     t =  d.toFormat("H:MM")
-    res.time = t.substring(0, t-1) + "0"
-    params=
-      afterTimestamp: parseFloat((new Date).getTime/100) - 7776000
-      limit: 250
-    Node_Foursquare.Users.getCheckins null, params, access, (error, data) ->
+    res.time = t.substring(0, t-1) + "0" #Estimate to the closest '10' minutes
+
+    #First thing we do is check if its a weeknight and late night. We will just return if this is the case.
+    if currentDay in weekend_nights and currentTimeCategory == -1
+      res.hasHistory = false
+    else 
+      res.hasHistory = true
+      firstPriority = secondPriority = []
+      similarDays = getSimilarDaysArray(currentDay, currentTimeCategory)
+      #Lets find stuff on same day and around the same time.
+      for ci in cis.items
+        ciDate = new Date(ci.createdAt*1000)
+        ciDateHour = ciDate.getHour()
+        ciDateDay = ciDate.getDay()
+        if isCloseTime(ciDateHour, currentHour)
+          #If day is the same, add it to primary list
+          if ciDateDay == currentDay
+            firstPriority.push ci
+          #Else we have to see if its ok to put on secondary list
+          else if ciDateDay in similarDays
+            secondPriority.push ci
+    view res
+            
+            
+
 
   getUser: () ->
     Node_Foursquare.Users.getUser "self", access, (error, data) ->
@@ -86,5 +116,43 @@ class Foursquare
         "an " + category.toLowerCase()
       else
         "a " + category.toLowerCase()
+
+  #Returns if hour given from Date.getHour is close enough to be similar
+  isCloseTime = (checkinHour, currentHour) ->
+    return (currentHour -3) < checkinHour < (currentHour + 3)
+
+  #returns the time of the day (late night, day, morning)
+  getTimeCategory = (hour) ->
+    switch true
+      #late night
+      when 0 <= hour <= 8
+        -1
+      #Day
+      when 8 < hour <= 18
+        0
+      #night
+      else
+        1
+
+  getSimilarDaysArray = (currentDay, currentTimeCategory)  ->
+    #First switch it by the current day of the week
+    switch currentDay
+      when 1, 2, 3, 4
+        ret = [1,2,3,4]
+        ret.push 5 if currentTimeCategory == 0
+      when 5
+        switch currentTimeCategory
+          when 0, -1 then ret = [1,2,3,4,5]
+          when 1 then  ret = [6]
+      when 6
+        switch currentTimeCategory
+          when -1, 1 then ret = [5]
+          when 0 then ret = [0]
+      when 0
+        switch currentTimeCategory
+          when -1, 1 then ret = []
+          when 0 then ret = [6]
+      else ret = []
+    return ret
 
 module.exports = Foursquare
