@@ -10,7 +10,6 @@
     "node-foursquare-2": ">=0.0.1",
     "pg": ">=0.8.3",
     "request": ">=2.11.0",
-    "redis-url": ">=0.1.0",
     "date-utils": ">=1.2.11"
   }
 }   
