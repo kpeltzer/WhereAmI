@@ -12,6 +12,8 @@ class Foursquare
     "Lower", "Upper", "East", "West"
   ]
 
+  weekend_nights = [5,6]
+
 
   getRecentCheckin: (view) ->
     res = {}
@@ -20,15 +22,15 @@ class Foursquare
       limit: 250
     Node_Foursquare.Users.getCheckins null, params, access, (error,data) -> 
       ci = data.checkins.items[0]
-      console.log ci
+      #console.log ci
       d = new Date
       #if parseFloat(d.getTime()/100) <= (parseInt(ci.createdAt) + 3600)
-      if true
+      if false
         res.checkin = true
         time = ((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/3600)
         switch true
           when (time >= 1 and time < 1.5) then res.time = "1 hour"
-          when time > 1.5 then res.time = "#{parseInt(time)} hours"
+          when time > 1.5 then res.time = "#{Math.round(time)} hours"
           when time < 1 then res.time = "#{parseInt(time*60)} minutes"
         if public_venues[ci.venue.id] #public checkin
           res.public = true
@@ -56,40 +58,39 @@ class Foursquare
                     res.locality = a.long_name
                 view res
       else 
-        getHistory(view, data.checkins.items)
+        processHistory(view, data.checkins.items)
 
 
-  getHistory = (view, cis) ->
+  processHistory = (view, cis) ->
     res = {}
     res.checkin = false
-    d = Date.today()
+    d = new Date
     res.day = d.toFormat "DDDD"
     currentDay = d.getDay()
-    currentHour = d.getHour()
+    currentHour = d.getHours()
     currentTimeCategory = getTimeCategory(currentHour)
     t =  d.toFormat("H:MM")
-    res.time = t.substring(0, t-1) + "0" #Estimate to the closest '10' minutes
-
+    res.time = t.substring(0, t.length-1) + "0" #Estimate to the closest '10' minutes
     #First thing we do is check if its a weeknight and late night. We will just return if this is the case.
     if currentDay in weekend_nights and currentTimeCategory == -1
       res.hasHistory = false
     else 
       res.hasHistory = true
-      firstPriority = secondPriority = []
+      checkins = {}
       similarDays = getSimilarDaysArray(currentDay, currentTimeCategory)
+      closeHours = getCloseTimesArray(currentHour)
+      console.log closeHours
+      count = 0
       #Lets find stuff on same day and around the same time.
-      for ci in cis.items
+      for ci in cis
         ciDate = new Date(ci.createdAt*1000)
-        ciDateHour = ciDate.getHour()
+        ciDateHour = ciDate.getHours()
         ciDateDay = ciDate.getDay()
-        if isCloseTime(ciDateHour, currentHour)
-          #If day is the same, add it to primary list
-          if ciDateDay == currentDay
-            firstPriority.push ci
-          #Else we have to see if its ok to put on secondary list
-          else if ciDateDay in similarDays
-            secondPriority.push ci
-    view res
+        if ciDateHour in closeHours and ciDateDay in similarDays
+          checkins[ci.venue.categories[0].name] = 0 if typeof checkins[ci.venue.categories[0].name] == 'undefined'
+          checkins[ci.venue.categories[0].name]++
+    console.log checkins
+    #view res
             
             
 
@@ -116,10 +117,6 @@ class Foursquare
         "an " + category.toLowerCase()
       else
         "a " + category.toLowerCase()
-
-  #Returns if hour given from Date.getHour is close enough to be similar
-  isCloseTime = (checkinHour, currentHour) ->
-    return (currentHour -3) < checkinHour < (currentHour + 3)
 
   #returns the time of the day (late night, day, morning)
   getTimeCategory = (hour) ->
@@ -153,6 +150,19 @@ class Foursquare
           when -1, 1 then ret = []
           when 0 then ret = [6]
       else ret = []
+    return ret
+
+  #Returns an array with 'close' hours to a given hour, definied by upper/lower limits
+  getCloseTimesArray = (currentHour) ->
+    lowerLimit = -3
+    upperLimit = 3
+    ret = []
+    for n in [lowerLimit..upperLimit]
+      t = currentHour + n
+      switch true
+        when t < 0 then t += 24
+        when t > 24 then t -= 24
+      ret.push t
     return ret
 
 module.exports = Foursquare

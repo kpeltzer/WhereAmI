@@ -32,7 +32,8 @@ app.get '/', (request, response) ->
 app.get '/test', (request, response) ->
   Foursquare = require './models/foursquare.coffee'
   fs = new Foursquare
-  response.send(fs.testFunc())
+  fs.getHistory (res) ->
+    response.render 'checkin', {res: res}
 
 port = process.env.PORT || 5000
 app.listen port, () ->
