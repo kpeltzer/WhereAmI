@@ -79,7 +79,6 @@ class Foursquare
       checkins = {}
       similarDays = getSimilarDaysArray(currentDay, currentTimeCategory)
       closeHours = getCloseTimesArray(currentHour)
-      console.log closeHours
       count = 0
       #Lets find stuff on same day and around the same time.
       for ci in cis
@@ -87,8 +86,12 @@ class Foursquare
         ciDateHour = ciDate.getHours()
         ciDateDay = ciDate.getDay()
         if ciDateHour in closeHours and ciDateDay in similarDays
-          checkins[ci.venue.categories[0].name] = 0 if typeof checkins[ci.venue.categories[0].name] == 'undefined'
-          checkins[ci.venue.categories[0].name]++
+          if typeof ci.venue.categories[0].name != 'undefined'            
+            name = ci.venue.categories[0].name
+          else
+            name = 'uncategorized venue'
+          checkins[name] = 0 if typeof checkins[name] == 'undefined'
+          checkins[name]++
     console.log checkins
     #view res
             
