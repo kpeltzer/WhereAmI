@@ -25,7 +25,7 @@ class Foursquare
       #console.log ci
       d = new Date
       #if parseFloat(d.getTime()/100) <= (parseInt(ci.createdAt) + 3600)
-      if false
+      if true
         res.checkin = true
         time = ((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/3600)
         switch true
