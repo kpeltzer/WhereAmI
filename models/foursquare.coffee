@@ -18,15 +18,15 @@ class Foursquare
   getRecentCheckin: (view) ->
     res = {}
     params=
-      afterTimestamp: parseInt((new Date).getTime()/1000) - 7776000
+      afterTimestamp: parseInt((new Date).getTime()/1000) - 10713600 #Four months of data
       limit: 250
     Node_Foursquare.Users.getCheckins null, params, access, (error,data) -> 
       ci = data.checkins.items[0]
       #console.log ci
       d = new Date
       #if parseFloat(d.getTime()/100) <= (parseInt(ci.createdAt) + 3600)
-      if true
-        res.checkin = true
+      if false
+        res.singleCheckin = true
         time = ((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/3600)
         switch true
           when (time >= 1 and time < 1.5) then res.time = "1 hour"
@@ -66,14 +66,14 @@ class Foursquare
 
   processHistory = (view, cis) ->
     res = {}
-    res.checkin = false
+    res.singleCheckin = false
     d = new Date
     res.day = d.toFormat "DDDD"
     currentDay = d.getDay()
     currentHour = d.getHours()
     currentTimeCategory = getTimeCategory(currentHour)
     t =  d.toFormat("H:MM")
-    res.time = t.substring(0, t.length-1) + "0" #Estimate to the closest '10' minutes
+    res.time = t.substring(0, t.length-1) + "0" + d.toFormat("P") #Estimate to the closest '10' minutes
     #First thing we do is check if its a weeknight and late night. We will just return if this is the case.
     if currentDay in weekend_nights and currentTimeCategory == -1
       res.hasHistory = false
@@ -83,23 +83,33 @@ class Foursquare
       similarDays = getSimilarDaysArray(currentDay, currentTimeCategory)
       closeHours = getCloseTimesArray(currentHour)
       count = 0
+      max = 0
+      maxCategories = []
       #Lets find stuff on same day and around the same time.
       for ci in cis
         ciDate = new Date(ci.createdAt*1000)
         ciDateHour = ciDate.getHours()
         ciDateDay = ciDate.getDay()
         if ciDateHour in closeHours and ciDateDay in similarDays
-          if typeof ci.venue.categories[0].name != 'undefined'            
+          if ci.venue.categories[0]?     
             name = ci.venue.categories[0].name
           else
             name = 'uncategorized venue'
-          checkins[name] = 0 if typeof checkins[name] == 'undefined'
+          checkins[name] = 0 unless checkins[name]?
           checkins[name]++
-    console.log checkins
-    #view res
+          count++
+          switch true
+            when checkins[name] > max 
+              maxCategories = []
+              maxCategories.push name
+              max++
+            when checkins[name] == max then maxCategories.push name
+    console.log maxCategories
+    res.type = getCategoryString(maxCategories[0]) if maxCategories[0]? and maxCategories.length == 1
+    checkinsArray = generateD3Array checkins
+    res.checkins = {"keys": "Where I Might Be", "values": checkinsArray}
+    view res
             
-            
-
 
   getUser: () ->
     Node_Foursquare.Users.getUser "self", access, (error, data) ->
@@ -169,6 +179,12 @@ class Foursquare
         when t < 0 then t += 24
         when t > 24 then t -= 24
       ret.push t
+    return ret
+
+  generateD3Array = (historyData) ->
+    ret = []
+    for k,v of historyData
+      ret.push {"label": k, "value": v}
     return ret
 
 module.exports = Foursquare
