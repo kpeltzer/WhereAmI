@@ -1,0 +1,22 @@
+.centered.grid_8.prefix_2.suffix_2
+  #chart
+    svg
+script
+  nv.addGraph(function() {
+  var chart = nv.models.pieChart()
+      .x(function(d) { return d.label })
+      .y(function(d) { return d.value })
+      .showLabels(true)
+      .tooltipContent(function(key, y, e, graph) {
+        return '<h3>' + key + '</h3>' +
+               '<p>Checkins: ' +  y + '</p>'
+      })
+      .valueFormat(d3.format(','));
+
+    d3.select("#chart svg")
+        .datum(!{res.checkins})
+      .transition().duration(1200)
+        .call(chart);
+
+  return chart;
+  });

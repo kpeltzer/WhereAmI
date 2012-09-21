@@ -72,7 +72,7 @@ class Foursquare
     currentDay = d.getDay()
     currentHour = d.getHours()
     currentTimeCategory = getTimeCategory(currentHour)
-    t =  d.toFormat("H:MM")
+    t =  d.toFormat("H:MI")
     res.time = t.substring(0, t.length-1) + "0" + d.toFormat("P") #Estimate to the closest '10' minutes
     #First thing we do is check if its a weeknight and late night. We will just return if this is the case.
     if currentDay in weekend_nights and currentTimeCategory == -1
@@ -94,7 +94,7 @@ class Foursquare
           if ci.venue.categories[0]?     
             name = ci.venue.categories[0].name
           else
-            name = 'uncategorized venue'
+            name = 'Uncategorized Venue'
           checkins[name] = 0 unless checkins[name]?
           checkins[name]++
           count++
@@ -104,10 +104,9 @@ class Foursquare
               maxCategories.push name
               max++
             when checkins[name] == max then maxCategories.push name
-    console.log maxCategories
     res.type = getCategoryString(maxCategories[0]) if maxCategories[0]? and maxCategories.length == 1
     checkinsArray = generateD3Array checkins
-    res.checkins = {"keys": "Where I Might Be", "values": checkinsArray}
+    res.checkins = JSON.stringify [{key: "Where I Might Be", values: checkinsArray}]
     view res
             
 
