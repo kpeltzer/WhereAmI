@@ -8,8 +8,11 @@ class Foursquare
   access = 'GHBZC42PZNDJUW3ET4UFLEU5K30UPQEXSVEH4MNL3PKBYCJK'
   public_venues =
     "4b203c68f964a520232f24e3": "work"
-  the_neighborhood_prefixes = [
-    "Lower", "Upper", "East", "West"
+  the_neighborhood_direction_prefixes = [
+    "Lower", "Upper"
+  ]
+  the_neighborhood_cardinal_prefixes = [
+    "East", "West"
   ]
 
   weekend_nights = [5,6]
@@ -104,7 +107,7 @@ class Foursquare
               maxCategories.push name
               max++
             when checkins[name] == max then maxCategories.push name
-    res.type = getCategoryString(maxCategories[0]) if maxCategories and maxCategoies[0]? and maxCategories.length == 1
+    res.type = getCategoryString(maxCategories[0]) if maxCategories and maxCategories[0]? and maxCategories.length == 1
     checkinsArray = generateD3Array checkins
     res.checkins = JSON.stringify [{key: "Where I Might Be", values: checkinsArray}]
     view res
@@ -120,11 +123,19 @@ class Foursquare
       console.log ci
 
   generateNeighborhoodString = (neighborhood) ->
-    first = neighborhood.split(" ")[0]
-    if first in the_neighborhood_prefixes
-      "the #{neighborhood}"
-    else
-      neighborhood
+    words = neighborhood.split(" ")
+    first = words[0]
+    second = words[1]
+    switch true
+      when first in the_neighborhood_direction_prefixes
+        if second in the_neighborhood_cardinal_prefixes
+          "the #{neighborhood}"
+        else
+          neighborhood
+      when first in the_neighborhood_cardinal_prefixes
+        "the #{neighborhood}"
+      else
+        neighborhood
 
   getCategoryString = (category) ->
     switch category.charAt(0)

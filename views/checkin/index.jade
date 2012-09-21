@@ -3,9 +3,9 @@ extends ../layout
 block content
   if res.singleCheckin
     .checkin.grid_10.prefix_1.suffix_1
-    if res.public
-      include public_checkin
-    else
-      include private_checkin
+      if res.public
+        include public_checkin
+      else
+        include private_checkin
   else
     include history
