@@ -104,7 +104,7 @@ class Foursquare
               maxCategories.push name
               max++
             when checkins[name] == max then maxCategories.push name
-    res.type = getCategoryString(maxCategories[0]) if maxCategories[0]? and maxCategories.length == 1
+    res.type = getCategoryString(maxCategories[0]) if maxCategories and maxCategoies[0]? and maxCategories.length == 1
     checkinsArray = generateD3Array checkins
     res.checkins = JSON.stringify [{key: "Where I Might Be", values: checkinsArray}]
     view res
