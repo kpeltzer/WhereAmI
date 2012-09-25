@@ -21,14 +21,13 @@ class Foursquare
   getRecentCheckin: (view) ->
     res = {}
     params=
-      afterTimestamp: parseInt((new Date).getTime()/1000) - 10713600 #Four months of data
+      afterTimestamp: parseInt((new Date).getTime()/1000) - 7776000 #Four months of data
       limit: 250
     Node_Foursquare.Users.getCheckins null, params, access, (error,data) -> 
       ci = data.checkins.items[0]
       #console.log ci
       d = new Date
-      #if parseFloat(d.getTime()/100) <= (parseInt(ci.createdAt) + 3600)
-      if false
+      if parseInt(d.getTime()/1000) <= (parseInt(ci.createdAt) + 3600)
         res.singleCheckin = true
         time = ((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/3600)
         switch true
@@ -97,7 +96,7 @@ class Foursquare
           if ci.venue.categories[0]?     
             name = ci.venue.categories[0].name
           else
-            name = 'Uncategorized Venue'
+            name = 'Mystery venue'
           checkins[name] = 0 unless checkins[name]?
           checkins[name]++
           count++
@@ -107,7 +106,7 @@ class Foursquare
               maxCategories.push name
               max++
             when checkins[name] == max then maxCategories.push name
-    res.type = getCategoryString(maxCategories[0]) if maxCategories and maxCategories[0]? and maxCategories.length == 1
+    res.types = maxCategories.reverse() if maxCategories and maxCategories.length >= 1
     checkinsArray = generateD3Array checkins
     res.checkins = JSON.stringify [{key: "Where I Might Be", values: checkinsArray}]
     view res

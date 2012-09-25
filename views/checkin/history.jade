@@ -4,3 +4,11 @@
   .history_guess.centered
     p Based on my recent activity on #{res.day} around #{res.time}:
 include pie_chart
+  if res.types
+    .history_category.centered
+      if res.types.length == 1
+        p I am likely at #{res.types[0]}.
+      else if res.types.length == 2
+        p I am likely at either #{res.types[0]} or #{res.types[1]}].
+      else
+        p I could be anywhere, really.
