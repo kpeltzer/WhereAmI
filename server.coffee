@@ -22,6 +22,7 @@ app.use stylus.middleware
   compile: compile
 
 app.use express.static(pub)
+app.use express.favicon("#{__dirname}/public/favicon.ico")
 
 app.get '/', (request, response) -> 
   Foursquare = require './models/foursquare.coffee'
