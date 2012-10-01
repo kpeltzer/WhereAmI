@@ -16,6 +16,7 @@ class Foursquare
   ]
 
   weekend_nights = [5,6]
+  weeknights = [1,2,3,4]
 
 
   getRecentCheckin: (view) ->
@@ -77,7 +78,7 @@ class Foursquare
     t =  d.toFormat("H:MI")
     res.time = t.substring(0, t.length-1) + "0" + d.toFormat("P") #Estimate to the closest '10' minutes
     #First thing we do is check if its a weeknight and late night. We will just return if this is the case.
-    if currentDay in weekend_nights and currentTimeCategory == -1
+    if currentDay in weeknights and currentTimeCategory == -1
       res.hasHistory = false
     else 
       res.hasHistory = true
