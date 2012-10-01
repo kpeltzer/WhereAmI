@@ -137,7 +137,7 @@ class Foursquare
         neighborhood
 
   getCategoryString = (category) ->
-    switch category.charAt(0)
+    switch category.charAt(0).toLowerCase()
       when "a","e","i","o","u"
         "an " + category.toLowerCase()
       else
