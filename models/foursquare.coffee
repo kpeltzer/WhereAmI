@@ -54,7 +54,7 @@ class Foursquare
             redis.get ci.id, (err,value) ->
               console.log err
               console.log value
-              if !err
+              if value
                 res.google = value
                 console.log 'cache hit'
               else
@@ -71,7 +71,7 @@ class Foursquare
                       else if "sublocality" in a.types
                         res.google.locality = a.long_name
                     redis.set ci.id, res.google
-                view res
+              view res
       else 
         processHistory(view, data.checkins.items)
 
