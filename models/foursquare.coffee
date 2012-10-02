@@ -28,7 +28,7 @@ class Foursquare
     Node_Foursquare.Users.getCheckins null, params, access, (error,data) -> 
       ci = data.checkins.items[0]
       d = new Date
-      if parseInt(d.getTime()/1000) <= (parseInt(ci.createdAt) + 7200)
+      if parseInt(d.getTime()/1000) <= (parseInt(ci.createdAt) + 5400)
         res.singleCheckin = true
         time = ((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/3600)
         switch true
@@ -52,11 +52,8 @@ class Foursquare
             #Call Google Geolocation API
             res.google = {}
             redis.get ci.id, (err,value) ->
-              console.log err
-              console.log value
               if value
-                res.google = value
-                console.log 'cache hit'
+                res.google = JSON.parse value
               else
                 api_request=
                   url: "http://maps.googleapis.com/maps/api/geocode/json?latlng=#{ci.venue.location.lat},#{ci.venue.location.lng}&sensor=false"
@@ -70,7 +67,7 @@ class Foursquare
                         res.google.locality = a.long_name
                       else if "sublocality" in a.types
                         res.google.locality = a.long_name
-                    redis.set ci.id, res.google
+                    redis.set ci.id, JSON.stringify(res.google)
               view res
       else 
         processHistory(view, data.checkins.items)
