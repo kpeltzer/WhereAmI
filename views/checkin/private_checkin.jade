@@ -2,8 +2,8 @@
 	p 
 		| I am at #{res.category} 
 		if res.neighborhood
-			| in #{res.neighborhood}.
+			| in #{res.google.neighborhood}.
 		else if res.locality
-			| in #{res.locality}.
+			| in #{res.google.locality}.
 .timeframe.centered
 	p I've been here for like, #{res.time}.

@@ -1,14 +1,19 @@
 .grid_10.prefix_1.suffix_1
   .history_header.centered
-    p I haven't checked in anywhere in a couple of hours. :(
+    p I haven't checked in anywhere in a couple of hours :(
   .history_guess.centered
     p Based on my recent activity on #{res.day} around #{res.time}:
-include pie_chart
-  if res.types
-    .history_category.centered
-      if res.types.length == 1
-        p I am likely at #{res.types[0]}.
-      else if res.types.length == 2
-        p I am likely at either #{res.types[0]} or #{res.types[1]}.
-      else
-        p I could be anywhere, really.
+if res.hasHistory
+  include pie_chart
+    if res.types
+      .history_category.centered
+        if res.types.length == 1
+          p I am likely at #{res.types[0]}.
+        else if res.types.length == 2
+          p I am likely at either #{res.types[0]} or #{res.types[1]}.
+        else
+          p I could be anywhere, really.
+else
+  .centered.grid_8.prefix_2.suffix_2
+    .nohistory
+      p I'm likely sleeping.

@@ -2,6 +2,7 @@ config = require '../config'
 Node_Foursquare = require("node-foursquare-2")(config)
 request = require 'request'
 require 'date-utils'
+redis = require('redis-url').connect(process.env.REDISTOGO_URL)
 
 
 class Foursquare
@@ -26,9 +27,8 @@ class Foursquare
       limit: 250
     Node_Foursquare.Users.getCheckins null, params, access, (error,data) -> 
       ci = data.checkins.items[0]
-      #console.log ci
       d = new Date
-      if parseInt(d.getTime()/1000) <= (parseInt(ci.createdAt) + 3600)
+      if parseInt(d.getTime()/1000) <= (parseInt(ci.createdAt) + 7200)
         res.singleCheckin = true
         time = ((parseInt(d.getTime()/1000) - parseInt(ci.createdAt))/3600)
         switch true
@@ -50,18 +50,25 @@ class Foursquare
           res.category = getCategoryString ci.venue.categories[0].name
           if ci.venue.location.lat && ci.venue.location.lng
             #Call Google Geolocation API
-            api_request=
-              url: "http://maps.googleapis.com/maps/api/geocode/json?latlng=#{ci.venue.location.lat},#{ci.venue.location.lng}&sensor=false"
-              json: true
-            value = request api_request, (error, response, body) ->
-              if !error && body.status =="OK"
-                for a in body.results[0].address_components
-                  if "neighborhood" in a.types
-                    res.neighborhood = generateNeighborhoodString a.long_name
-                  else if "locality" in a.types
-                    res.locality = a.long_name
-                  else if "sublocality" in a.types
-                    res.locality = a.long_name
+            res.google = {}
+            redis.get ci.id, (err,value) ->
+              if !err
+                res.google = value
+                console.log 'cache hit'
+              else
+                api_request=
+                  url: "http://maps.googleapis.com/maps/api/geocode/json?latlng=#{ci.venue.location.lat},#{ci.venue.location.lng}&sensor=false"
+                  json: true
+                value = request api_request, (error, response, body) ->
+                  if !error && body.status =="OK"
+                    for a in body.results[0].address_components
+                      if "neighborhood" in a.types
+                        res.google.neighborhood = generateNeighborhoodString a.long_name
+                      else if "locality" in a.types
+                        res.google.locality = a.long_name
+                      else if "sublocality" in a.types
+                        res.google.locality = a.long_name
+                    redis.set ci.id, res.google
                 view res
       else 
         processHistory(view, data.checkins.items)
