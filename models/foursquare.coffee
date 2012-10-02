@@ -52,6 +52,8 @@ class Foursquare
             #Call Google Geolocation API
             res.google = {}
             redis.get ci.id, (err,value) ->
+              console.log err
+              console.log value
               if !err
                 res.google = value
                 console.log 'cache hit'
