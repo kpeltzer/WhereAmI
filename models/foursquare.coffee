@@ -6,7 +6,7 @@ redis = require('redis-url').connect(process.env.REDISTOGO_URL)
 
 
 class Foursquare
-  access = 'GHBZC42PZNDJUW3ET4UFLEU5K30UPQEXSVEH4MNL3PKBYCJK'
+  access = process.env.FS_API_KEY
   public_venues =
     "4b203c68f964a520232f24e3": "work"
   the_neighborhood_direction_prefixes = [
